@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Enums\Direction;
 use App\Enums\Kind;
 use App\Enums\MaterialType;
 use App\Enums\PlaceType;
@@ -102,6 +103,10 @@ class DatabaseSeeder extends Seeder
 
         $place->resources()->attach([
             $pine->id => ['quantity'=> 10],
+        ]);
+
+        $place->exits()->attach([
+            $place->id => ['direction' => Direction::North],
         ]);
     }
 }

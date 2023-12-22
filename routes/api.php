@@ -11,4 +11,5 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/me', UserController::class);
     Route::get('/inventory', InventoryController::class);
     Route::get('/cut', Actions\CutController::class);
+    Route::get('/look', Actions\LookController::class);
 });

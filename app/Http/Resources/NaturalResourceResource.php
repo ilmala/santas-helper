@@ -2,14 +2,14 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Place;
+use App\Models\NaturalResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property-read Place $resource
+ * @property-read NaturalResource $resource
  */
-class PlaceResource extends JsonResource
+class NaturalResourceResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -20,11 +20,10 @@ class PlaceResource extends JsonResource
     {
         return [
             'id' => $this->resource->getKey(),
+            'type' => $this->resource->type,
             'name' => $this->resource->name,
             'description' => $this->resource->description,
-            'resources' => NaturalResourceResource::collection($this->whenLoaded('resources')),
-            'exits' => ExitResource::collection($this->whenLoaded('exits')),
-            'users' => UserResource::collection($this->whenLoaded('users')),
+            'quantity' => $this->resource->pivot->quantity,
         ];
     }
 }

@@ -9,7 +9,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * @property-read Place $resource
  */
-class PlaceResource extends JsonResource
+class ExitResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -20,11 +20,8 @@ class PlaceResource extends JsonResource
     {
         return [
             'id' => $this->resource->getKey(),
-            'name' => $this->resource->name,
             'description' => $this->resource->description,
-            'resources' => NaturalResourceResource::collection($this->whenLoaded('resources')),
-            'exits' => ExitResource::collection($this->whenLoaded('exits')),
-            'users' => UserResource::collection($this->whenLoaded('users')),
+            'direction' => $this->resource->pivot->direction,
         ];
     }
 }

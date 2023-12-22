@@ -10,3 +10,6 @@ show the elf inventory status
 
 ### [GET] /api/cut?target=pine
 allow the elf to cut resource
+
+### [GET] /api/look
+allow the elf to look around
