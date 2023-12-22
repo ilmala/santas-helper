@@ -12,8 +12,11 @@ class UserController extends Controller
 {
     public function __invoke(Request $request): UserResource
     {
+        $user = $request->user();
+        $user->load('place');
+
         return new UserResource(
-            resource: $request->user()->fresh()
+            resource: $user
         );
     }
 }

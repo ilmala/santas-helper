@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\Actions;
 
 use App\Http\Controllers\Controller;
 use App\Models\NaturalResource;
+use App\Models\Place;
 use App\Models\User;
 use App\Services\Inventory;
 use Illuminate\Http\JsonResponse;
@@ -20,26 +21,30 @@ class CutController extends Controller
         ]);
 
         /** @var User $user */
-        $user = $request->user()->fresh();
+        $user = $request->user();
 
-        $resource = NaturalResource::query()
+        /** @var Place $place */
+        $place = $user->place;
+
+        // Look if in the place there is resources
+        $resource = $place->resources()
             ->where('name', 'LIKE', $data['target'])
             ->first();
 
-        if ( ! $resource) {
+        if ( ! $resource || $resource->pivot->quantity < 0) {
             return response()->json([
                 'message' => "You look around, but you don't see a {$data['target']} in this area."
             ], 404);
         }
 
         // check if user have action points
-        if ($user->action < $resource->action_point) {
+        if (!$user->canPerformAction($resource->action_point)) {
             return response()->json([
                 'message' => "You are too tired to perform this action. Maybe it's better to rest a little first!"
             ], 404);
         }
 
-        $user->decrement('action', $resource->action_point);
+        $user->performAction($resource->action_point);
 
         $roll = rand(1, 8);
         if ($roll <= rand(1, 4)) {
@@ -51,7 +56,8 @@ class CutController extends Controller
             ], 404);
         }
 
-        $user->increment('experience', $resource->experience_point);
+        $place->decrementResources($resource);
+        $user->gainExperience($resource->experience_point);
 
         $generatedMaterials = [];
         $inventory = new Inventory($user->fresh());

@@ -7,9 +7,11 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Enums\Kind;
 use App\Enums\MaterialType;
+use App\Enums\PlaceType;
 use App\Enums\ResourceType;
 use App\Models\Material;
 use App\Models\NaturalResource;
+use App\Models\Place;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -20,18 +22,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
+        $place = Place::factory()->create([
+            'type' => PlaceType::Forrest,
+            'name' => "A quite and shinny forrest",
+            'description' => "Description to A quite and shinny forrest",
+        ]);
 
         User::factory()->create([
             'kind' => Kind::Santa,
             'name' => 'Santa Boss',
             'email' => 'santa-boss@example.com',
+            'place_id' => $place->id,
         ]);
 
         $elf = User::factory()->create([
             'kind' => Kind::Elf,
             'name' => 'Elf test',
             'email' => 'elf-test@example.com',
+            'place_id' => $place->id,
         ]);
 
         $token = $elf->createToken('secret-name');
@@ -90,6 +98,10 @@ class DatabaseSeeder extends Seeder
             $trunk->id => ['min_quantity' => 2, 'max_quantity' => 4],
             $bigLeaf->id => ['min_quantity' => 2, 'max_quantity' => 6],
             $cocoNut->id => ['min_quantity' => 1, 'max_quantity' => 4],
+        ]);
+
+        $place->resources()->attach([
+            $pine->id => ['quantity'=> 10],
         ]);
     }
 }

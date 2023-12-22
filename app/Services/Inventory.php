@@ -45,10 +45,6 @@ readonly class Inventory
             $this->user->materials()->attach($material->id, ['quantity' => $quantity]);
         }
 
-        // Recalculate user total weight
-        $totalWeight = $this->user->materials()
-            ->sum(DB::raw("(weight * quantity)"));
-
-        $this->user->update(['weight' => $totalWeight]);
+        $this->user->recalculateWeight();
     }
 }

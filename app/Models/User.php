@@ -6,11 +6,14 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\Kind;
+use App\Enums\UserState;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -41,6 +44,7 @@ class User extends Authenticatable
         'level',
         'experience',
         'stars',
+        'place_id',
     ];
 
     /**
@@ -60,6 +64,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'kind' => Kind::class,
+        'status' => UserState::class,
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'health' => 'integer',
@@ -75,8 +80,48 @@ class User extends Authenticatable
         'stars' => 'integer',
     ];
 
+    public function recalculateWeight(): void
+    {
+        $totalWeight = $this->materials()
+            ->sum(DB::raw("(weight * quantity)"));
+
+        $this->update(['weight' => $totalWeight]);
+    }
+
+    public function canPerformAction(int $actionPoint = 1): bool
+    {
+        return $this->action >= 0 && $this->action >= $actionPoint;
+    }
+
+    public function performAction(int $actionPoint = 1): void
+    {
+        $this->decrement('action', $actionPoint);
+
+        if($this->isTired()){
+            $this->update(['status' => UserState::Tired]);
+        }
+    }
+
+    public function isTired(): bool
+    {
+        return $this->action < 30;
+    }
+
+    public function gainExperience(int $experience=1): void
+    {
+        // @todo: check for level up
+        $this->increment('experience', $experience);
+    }
+
+    /** Relations */
+
     public function materials(): BelongsToMany
     {
         return $this->belongsToMany(Material::class)->withPivot('quantity');
+    }
+
+    public function place(): BelongsTo
+    {
+        return $this->belongsTo(Place::class);
     }
 }

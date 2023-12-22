@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Enums\Kind;
+use App\Models\Place;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -41,6 +42,7 @@ class UserFactory extends Factory
             'max_action' => Kind::Elf->actionMax(),
             'weight' => 0,
             'max_weight' => 60,
+            'place_id' => Place::factory(),
         ];
     }
 

@@ -37,6 +37,7 @@ class UserResource extends JsonResource
                 'current' => $this->resource->weight,
                 'max' => $this->resource->max_weight,
             ],
+            'place' => new PlaceResource($this->whenLoaded('place')),
         ];
     }
 }
